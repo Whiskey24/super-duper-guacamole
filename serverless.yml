@@ -1,0 +1,31 @@
+service: my-telegram-bot
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  environment:
+    RDS_HOSTNAME: ${ssm:/path/to/your/rds/hostname}
+    RDS_USERNAME: ${ssm:/path/to/your/rds/username}
+    RDS_PASSWORD: ${ssm:/path/to/your/rds/password}
+    RDS_DATABASE: ${ssm:/path/to/your/rds/database}
+
+functions:
+  bot:
+    handler: src/bot.handler
+    events:
+      - http:
+          path: bot
+          method: post
+  notifications:
+    handler: src/tasks/notifications.handler
+    events:
+      - schedule: rate(1 hour)
+  webScraping:
+    handler: src/tasks/webScraping.handler
+    events:
+      - schedule: rate(24 hours)
+
+plugins:
+  - serverless-offline
