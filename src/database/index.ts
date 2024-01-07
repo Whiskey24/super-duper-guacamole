@@ -1,15 +1,11 @@
 import pgPromise from 'pg-promise';
-import fs from 'fs';
-import path from 'path';
+import config from '../config';
 
 // Initialize pg-promise and define its configuration
 const pgp = pgPromise();
 
-const configPath = path.join(__dirname, '../config.json');
-const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-
 // Create the database connection
-const db = pgp(config);
+const db = pgp(config.database);
 
 export async function queryDatabase(query: string, values?: any[]) {
   try {

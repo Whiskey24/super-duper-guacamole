@@ -3,7 +3,8 @@
     "host": "localhost",
     "user": "username",
     "password": "password",
-    "database_name": "database_name",
-    "database_port": "database_port"
-  }
+    "database": "database name",
+    "port": "database port"
+  },
+  "telegramBotToken": "Telegram bot token"
 }

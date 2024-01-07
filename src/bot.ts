@@ -1,8 +1,8 @@
-import * as TelegramBot from 'node-telegram-bot-api';
+import TelegramBot from 'node-telegram-bot-api';
 import { handleCommand } from './controllers';
+import config from './config';
 
-// replace the value below with the Telegram token you received from @BotFather
-const token = 'YOUR_TELEGRAM_BOT_TOKEN';
+const token = config.telegramBotToken;
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, {polling: true});

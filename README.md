@@ -1,4 +1,6 @@
-# My Telegram Bot
+# Super Duper Quacamole
+
+*** Currently this is a training exercise ***
 
 This project is a Telegram bot that uses AWS Lambda with Amazon RDS database and scheduled tasks for notifications and web scraping, written in TypeScript.
 
@@ -6,16 +8,20 @@ This project is a Telegram bot that uses AWS Lambda with Amazon RDS database and
 
 The project has the following structure:
 
-- `src/bot.ts`: Initializes the bot and sets up command handlers.
-- `src/controllers/index.ts`: Exports controllers that handle different bot commands.
-- `src/database/index.ts`: Sets up the connection to the Amazon RDS database.
-- `src/tasks/notifications.ts`: Sends scheduled notifications to users.
-- `src/tasks/webScraping.ts`: Performs web scraping and stores the data in the database.
-- `src/types/index.ts`: Exports TypeScript types used in the project.
-- `tests/index.ts`: Contains tests for the bot, controllers, tasks, and database.
-- `package.json`: Lists the dependencies and scripts for the project.
-- `tsconfig.json`: Specifies the TypeScript compiler options and the files to include in the compilation.
-- `serverless.yml`: Specifies the AWS Lambda functions to deploy and their settings.
+- .gitignore: This file specifies intentionally untracked files that Git should ignore.
+- config.default.json: This is a template for your configuration file. You should rename it to config.json and add your Amazon RDS connection details.
+- package.json: This file lists the dependencies and scripts for the project. It also includes metadata about the project like its name and version.
+- README.md: This file provides an overview of the project, including setup instructions, usage, testing, contributing, and licensing information.
+- serverless.yml: This file specifies the AWS Lambda functions to deploy and their settings.
+- src/: This directory contains the source code of the project.
+  - bot.ts: This file initializes the bot and sets up command handlers.
+  - config.ts: This file exports the configuration object that is used throughout the project.
+  - controllers/: This directory contains the controllers that handle different bot commands.
+  - database/: This directory sets up the connection to the Amazon RDS database.
+  - tasks/: This directory contains tasks that the bot can perform, such as sending notifications and web scraping.
+  - types/: This directory exports TypeScript types used in the project.
+- tests/: This directory contains tests for the bot, controllers, tasks, and database.
+- tsconfig.json: This file specifies the TypeScript compiler options and the files to include in the compilation.
 
 ## Setup
 
