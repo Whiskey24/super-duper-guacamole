@@ -1,15 +1,16 @@
-service: my-telegram-bot
+service: super-duper-quacamole
 
 provider:
-  name: aws
-  runtime: nodejs12.x
-  stage: dev
-  region: us-east-1
-  environment:
-    RDS_HOSTNAME: ${ssm:/path/to/your/rds/hostname}
-    RDS_USERNAME: ${ssm:/path/to/your/rds/username}
-    RDS_PASSWORD: ${ssm:/path/to/your/rds/password}
-    RDS_DATABASE: ${ssm:/path/to/your/rds/database}
+  name: ${file(./config.yml):aws.name}
+  runtime: ${file(./config.yml):aws.runtime}
+  stage: ${file(./config.yml):aws.stage}
+  region: ${file(./config.yml):aws.region}
+# TODO  
+#  environment:
+#    RDS_HOSTNAME: ${file(./config.yml):aws.database.host}
+#    RDS_USERNAME: ${file(./config.yml):aws.database.user}
+#    RDS_PASSWORD: ${file(./config.yml):aws.database.password}
+#    RDS_DATABASE: ${file(./config.yml):aws.database.database}
 
 functions:
   bot:
@@ -18,14 +19,15 @@ functions:
       - http:
           path: bot
           method: post
-  notifications:
-    handler: src/tasks/notifications.handler
-    events:
-      - schedule: rate(1 hour)
-  webScraping:
-    handler: src/tasks/webScraping.handler
-    events:
-      - schedule: rate(24 hours)
+# TODO
+#  notifications:
+#    handler: src/tasks/notifications.handler
+#    events:
+#      - schedule: rate(1 hour)
+#  webScraping:
+#    handler: src/tasks/webScraping.handler
+#    events:
+#      - schedule: rate(24 hours)
 
 plugins:
   - serverless-offline

@@ -2,4 +2,6 @@
 node_modules
 
 # Configuration files
-config.json
+config.dev.yml
+config.prod.yml
+config.yml

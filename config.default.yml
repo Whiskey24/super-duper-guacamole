@@ -1,0 +1,13 @@
+aws:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  database:
+    host: localhost
+    user: username
+    password: password
+    database: database name
+    port: database port
+
+telegramBotToken: 'your bot API key'

@@ -27,7 +27,7 @@ The project has the following structure:
 
 1. Install the dependencies by running `npm install`.
 2. Set up your Amazon RDS database, rename `config.default.json` to `config.json` and add the connection details in that file.
-3. Set up your Telegram bot and add the bot token to `src/bot.ts`.
+3. Create a Telegram bot, see [these instructions](https://core.telegram.org/bots#6-botfather) and with sending BotFather the message `/newbot`. Follow the steps and add the API key of your bot to `config.json`.  
 4. Deploy the AWS Lambda functions by running `serverless deploy`.
 
 ## Usage
