@@ -3,32 +3,41 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { handleCommand } from './controllers';
 import config from './config';
 
-const token = config.telegramBotToken;
-const bot = new TelegramBot(token);
+const bot = new TelegramBot(config.telegramBotToken);
 
+// took this as an example: https://github.com/royshil/telegram-serverless-ts-bot-tutorial/tree/main
+
+let globalResolve: (value: any) => void = () => {};
+
+// this is the function that will be called by AWS Lambda and will handle all requests from Telegram
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const body = JSON.parse(event.body || '{}');
     const { msg } = body;
 
     if (msg) {
-      const chatId = msg.chat.id;
+      console.log("Received message: ", msg);
 
-      // send a message to the chat acknowledging receipt of their message
-      await bot.sendMessage(chatId, 'Received your message');
+      await new Promise((resolve, reject) => {
+        globalResolve = resolve;
 
-      // Extract command from msg.text
-      const commandMatch = msg.text?.match(/\/(\w+)/);
-      const command = commandMatch ? commandMatch[1].toLowerCase() : undefined;
+        // because we run inside lambda, we need to use processUpdate
+        // this will emit the proper events and executing regexp callbacks.
+        bot.processUpdate(msg);
 
-      // pass command on to the handlers if command is defined
-      if (command) {
-        handleCommand(command, msg, bot);
-      }
+        // set timeout to 3 seconds to resolve the promise in case the bot doesn't respond
+        setTimeout(() => {
+          // make sure to resolve the promise in case of timeout as well
+          // do not reject the promise, otherwise the lambda will be marked as failed
+          resolve("global timeout");
+        }, 3000);
+      });
+    } else {
+      console.log("Received empty message");
     }
 
-    // You can add more logic here based on your use case
-
+    // respond to Telegram that the webhook has been received.
+    // if this is not sent, telegram will try to resend the webhook over and over again.
     return {
       statusCode: 200,
       body: JSON.stringify({ message: 'Success' }),
@@ -41,3 +50,19 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     };
   }
 };
+
+// Matches "/echo [whatever]"
+bot.onText(/\/echo (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
+  const chatId = msg.chat.id;
+  const resp = match ? match[1] : '<nothing to echo specified>'; // the captured "whatever"
+
+  // send back the matched "whatever" to the chat
+  await bot.sendMessage(chatId, resp);
+});
+
+// Matches "/help [whatever]"
+bot.onText(/\/help (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
+  const chatId = msg.chat.id;
+  const resp = match ? "help message on" + match[1] : 'general help message';
+  await bot.sendMessage(chatId, resp);
+});
