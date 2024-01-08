@@ -39,3 +39,22 @@ export interface ScrapedData {
   id: number;
   data: string;
 }
+
+export interface AWSConfig {
+  name: string;
+  runtime: string;
+  stage: string;
+  region: string;
+  database: {
+    host: string;
+    user: string;
+    password: string;
+    database: string;
+    port: number;
+  };
+}
+
+export interface AppConfig {
+  aws: AWSConfig;
+  telegramBotToken: string;
+}
