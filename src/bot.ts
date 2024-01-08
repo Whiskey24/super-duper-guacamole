@@ -54,15 +54,26 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 // Matches "/echo [whatever]"
 bot.onText(/\/echo (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
   const chatId = msg.chat.id;
-  const resp = match ? match[1] : '<nothing to echo specified>'; // the captured "whatever"
-
-  // send back the matched "whatever" to the chat
-  await bot.sendMessage(chatId, resp);
+  try {
+    const resp = match ? match[1] : '<nothing to echo specified>'; // the captured "whatever"
+    await bot.sendMessage(chatId, resp);  // send back the matched "whatever" to the chat
+  } catch (error) {
+    console.error('Error:', error);
+    await bot.sendMessage(chatId, `❌ Error executing echo command: ${error}`);
+  }
+  // call the global resolve to signal the finish of the bot’s work for this message and clear the Lambda run.
+  globalResolve("ok");
 });
 
 // Matches "/help [whatever]"
 bot.onText(/\/help (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
   const chatId = msg.chat.id;
-  const resp = match ? "help message on" + match[1] : 'general help message';
-  await bot.sendMessage(chatId, resp);
+  try {
+    const resp = match ? "help message on" + match[1] : 'general help message';
+    await bot.sendMessage(chatId, resp);
+  } catch (error) {
+    console.error('Error:', error);
+    await bot.sendMessage(chatId, `❌ Error executing help command: ${error}`);
+  }
+  globalResolve("ok");
 });
