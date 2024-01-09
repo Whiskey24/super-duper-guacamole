@@ -1,10 +1,14 @@
 service: super-duper-quacamole
+frameworkVersion: '3'
+configValidationMode: warn
 
 provider:
   name: ${file(./config.yml):aws.name}
   runtime: ${file(./config.yml):aws.runtime}
   stage: ${file(./config.yml):aws.stage}
   region: ${file(./config.yml):aws.region}
+  deploymentBucket:
+    name: ${file(./config.yml):aws.deploymentBucket.name}
 # TODO  
 #  environment:
 #    RDS_HOSTNAME: ${file(./config.yml):aws.database.host}

@@ -5,3 +5,6 @@ node_modules
 config.dev.yml
 config.prod.yml
 config.yml
+
+# Ignore the build directory
+/.build

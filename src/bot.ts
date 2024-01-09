@@ -22,7 +22,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
         globalResolve = resolve;
 
         // because we run inside lambda, we need to use processUpdate
-        // this will emit the proper events and executing regexp callbacks.
+        // this will emit the proper events and executing regexp callbacks (e.g. bot.talk).
         bot.processUpdate(msg);
 
         // set timeout to 3 seconds to resolve the promise in case the bot doesn't respond

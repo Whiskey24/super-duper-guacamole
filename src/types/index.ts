@@ -45,13 +45,13 @@ export interface AWSConfig {
   runtime: string;
   stage: string;
   region: string;
-  database: {
-    host: string;
-    user: string;
-    password: string;
-    database: string;
-    port: number;
-  };
+//  database: {
+//    host: string;
+//    user: string;
+//    password: string;
+//    database: string;
+//    port: number;
+//  };
 }
 
 export interface AppConfig {
