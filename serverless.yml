@@ -1,6 +1,9 @@
 service: super-duper-quacamole
 frameworkVersion: '3'
 configValidationMode: warn
+	
+package:
+  individually: true
 
 provider:
   name: ${file(./config.yml):aws.name}
