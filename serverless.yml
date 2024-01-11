@@ -4,7 +4,9 @@ configValidationMode: warn
 	
 package:
   individually: true
-
+  patterns:
+    - ./config.yml
+    
 provider:
   name: ${file(./config.yml):aws.name}
   runtime: ${file(./config.yml):aws.runtime}

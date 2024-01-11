@@ -12,8 +12,11 @@ let globalResolve: (value: any) => void = () => {};
 // this is the function that will be called by AWS Lambda and will handle all requests from Telegram
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
-    const body = JSON.parse(event.body || '{}');
-    const { msg } = body;
+    // Log the received event in a more readable format
+    // console.log("Received event:", JSON.stringify(event, null, 2));
+
+    // extract text message from the event body or empty string if message or text is not present
+    const msg = JSON.parse(event.body || '{}').message?.text || '';
 
     if (msg) {
       console.log("Received message: ", msg);
@@ -54,6 +57,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 // Matches "/echo [whatever]"
 bot.onText(/\/echo (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
   const chatId = msg.chat.id;
+  console.log("Received echo command: ", match);
   try {
     const resp = match ? match[1] : '<nothing to echo specified>'; // the captured "whatever"
     await bot.sendMessage(chatId, resp);  // send back the matched "whatever" to the chat
@@ -68,6 +72,7 @@ bot.onText(/\/echo (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArra
 // Matches "/help [whatever]"
 bot.onText(/\/help (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
   const chatId = msg.chat.id;
+  console.log("Received help command: ", match);
   try {
     const resp = match ? "help message on" + match[1] : 'general help message';
     await bot.sendMessage(chatId, resp);
