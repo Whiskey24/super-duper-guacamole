@@ -3,7 +3,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { handleCommand } from './controllers';
 import config from './config';
 
-const bot = new TelegramBot(config.telegramBotToken);
+const bot = new TelegramBot(config.telegramBotToken, { polling: true });
 
 // took this as an example: https://github.com/royshil/telegram-serverless-ts-bot-tutorial/tree/main
 
@@ -53,6 +53,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     };
   }
 };
+
 
 // Matches "/echo [whatever]"
 bot.onText(/\/echo (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
