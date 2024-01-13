@@ -4,8 +4,6 @@ configValidationMode: warn
 	
 package:
   individually: true
-  patterns:
-    - ./config.yml
     
 provider:
   name: ${file(./config.yml):aws.name}
@@ -14,12 +12,12 @@ provider:
   region: ${file(./config.yml):aws.region}
   deploymentBucket:
     name: ${file(./config.yml):aws.deploymentBucket.name}
-# TODO  
-#  environment:
-#    RDS_HOSTNAME: ${file(./config.yml):aws.database.host}
-#    RDS_USERNAME: ${file(./config.yml):aws.database.user}
-#    RDS_PASSWORD: ${file(./config.yml):aws.database.password}
-#    RDS_DATABASE: ${file(./config.yml):aws.database.database}
+  environment:
+    TELEGRAM_TOKEN: ${file(./config.yml):telegramBotToken}
+    RDS_HOSTNAME: ${file(./config.yml):aws.database.host}
+    RDS_USERNAME: ${file(./config.yml):aws.database.user}
+    RDS_PASSWORD: ${file(./config.yml):aws.database.password}
+    RDS_DATABASE: ${file(./config.yml):aws.database.database}
 
 functions:
   bot:

@@ -1,9 +1,8 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { handleCommand } from './controllers';
-import config from './config';
+//import { handleCommand } from './controllers';
 
-const bot = new TelegramBot(config.telegramBotToken, { polling: true });
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN || '', { polling: true });
 
 // took this as an example: https://github.com/royshil/telegram-serverless-ts-bot-tutorial/tree/main
 
@@ -13,7 +12,7 @@ let globalResolve: (value: any) => void = () => {};
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     // Log the received event in a more readable format
-    // console.log("Received event:", JSON.stringify(event, null, 2));
+    console.log("Received event:", JSON.stringify(event, null, 2));
 
     // extract text message from the event body or empty string if message or text is not present
     const msg = JSON.parse(event.body || '{}').message?.text || '';
@@ -58,7 +57,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 // Matches "/echo [whatever]"
 bot.onText(/\/echo (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
   const chatId = msg.chat.id;
-  console.log("Received echo command: ", match);
+  console.log("Received echo command");
   try {
     const resp = match ? match[1] : '<nothing to echo specified>'; // the captured "whatever"
     await bot.sendMessage(chatId, resp);  // send back the matched "whatever" to the chat
@@ -73,7 +72,7 @@ bot.onText(/\/echo (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArra
 // Matches "/help [whatever]"
 bot.onText(/\/help (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
   const chatId = msg.chat.id;
-  console.log("Received help command: ", match);
+  console.log("Received help command");
   try {
     const resp = match ? "help message on" + match[1] : 'general help message';
     await bot.sendMessage(chatId, resp);

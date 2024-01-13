@@ -1,3 +1,4 @@
+/* Not sure we need this in a separate module
 import TelegramBot from 'node-telegram-bot-api';
 
 function handleCommand(command: string, msg: TelegramBot.Message, bot: TelegramBot) {
@@ -19,3 +20,4 @@ function handleCommand(command: string, msg: TelegramBot.Message, bot: TelegramB
   }
   
   export { handleCommand };
+  */
