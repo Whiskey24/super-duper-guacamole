@@ -1,0 +1,108 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"lambda:CreateFunction",
+				"lambda:UpdateFunctionCode",
+				"lambda:UpdateFunctionConfiguration",
+				"lambda:GetFunctionConfiguration",
+				"lambda:ListFunctions",
+				"lambda:CreateAlias",
+				"lambda:UpdateAlias",
+				"lambda:ListAliases",
+				"lambda:ListVersionsByFunction",
+				"lambda:PublishVersion",
+				"lambda:InvokeFunction",
+				"lambda:GetFunction",
+				"lambda:TagResource",
+				"lambda:AddPermission",
+				"lambda:ListTags"
+			],
+			"Resource": "*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"apigateway:POST",
+				"apigateway:GET",
+				"apigateway:PUT",
+				"apigateway:DELETE",
+				"apigateway:PATCH"
+			],
+			"Resource": "*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"s3:CreateBucket",
+				"s3:DeleteBucket",
+				"s3:DeleteBucketPolicy",
+				"s3:DeleteObject",
+				"s3:DeleteObjectVersion",
+				"s3:Get*",
+				"s3:List*",
+				"s3:PutBucketNotification",
+				"s3:PutBucketPolicy",
+				"s3:PutBucketTagging",
+				"s3:PutBucketWebsite",
+				"s3:PutEncryptionConfiguration",
+				"s3:PutObject"
+			],
+			"Resource": [
+				"arn:aws:s3:::bot-deployment",
+				"arn:aws:s3:::bot-deployment/*"
+			]
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"cloudformation:CancelUpdateStack",
+				"cloudformation:ContinueUpdateRollback",
+				"cloudformation:CreateChangeSet",
+				"cloudformation:CreateStack",
+				"cloudformation:CreateUploadBucket",
+				"cloudformation:DeleteStack",
+				"cloudformation:Describe*",
+				"cloudformation:EstimateTemplateCost",
+				"cloudformation:ExecuteChangeSet",
+				"cloudformation:Get*",
+				"cloudformation:List*",
+				"cloudformation:UpdateStack",
+				"cloudformation:UpdateTerminationProtection",
+				"cloudformation:ValidateTemplate",
+				"cloudformation:DeleteChangeSet"
+			],
+			"Resource": "*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"logs:CreateLogGroup",
+				"logs:CreateLogStream",
+				"logs:PutLogEvents",
+				"logs:TagResource",
+				"logs:DeleteLogGroup",
+				"logs:DescribeLogStreams",
+				"logs:FilterLogEvents",
+				"logs:PutRetentionPolicy"
+			],
+			"Resource": "*"
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"iam:AttachRolePolicy",
+				"iam:CreateRole",
+				"iam:DeleteRole",
+				"iam:DeleteRolePolicy",
+				"iam:DetachRolePolicy",
+				"iam:GetRole",
+				"iam:PutRolePolicy",
+				"iam:PassRole"
+			],
+			"Resource": "arn:aws:iam::471112503933:role/super-duper-quacamole-dev-eu-central-1-lambdaRole"
+		}
+	]
+}

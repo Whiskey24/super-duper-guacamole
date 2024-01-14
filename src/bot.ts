@@ -12,7 +12,7 @@ let globalResolve: (value: any) => void = () => {};
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     // Log the received event in a more readable format
-    console.log("Received event:", JSON.stringify(event, null, 2));
+    // console.log("Received event:", JSON.stringify(event, null, 2));
 
     // extract text message from the event body or empty string if message or text is not present
     const msg = JSON.parse(event.body || '{}').message?.text || '';
@@ -69,8 +69,8 @@ bot.onText(/\/echo (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArra
   globalResolve("ok");
 });
 
-// Matches "/help [whatever]"
-bot.onText(/\/help (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
+// Matches "/help [whatever]" or just "/help"
+bot.onText(/\/help ?(.+)?/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
   const chatId = msg.chat.id;
   console.log("Received help command");
   try {
