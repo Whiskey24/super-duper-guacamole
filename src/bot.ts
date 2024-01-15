@@ -1,12 +1,15 @@
 import TelegramBot from 'node-telegram-bot-api';
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda';
 //import { handleCommand } from './controllers';
 
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN || '', { polling: true });
+// polling must be set to false or the webhook will be removed by Telegram when polling starts
+const bot = new TelegramBot(process.env.TELEGRAM_TOKEN || '', { polling: false });
 
 // took this as an example: https://github.com/royshil/telegram-serverless-ts-bot-tutorial/tree/main
 
 let globalResolve: (value: any) => void = () => {};
+
+console.log("Gateway URL: ", process.env.GW_URL);
 
 // this is the function that will be called by AWS Lambda and will handle all requests from Telegram
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -53,7 +56,6 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 };
 
-
 // Matches "/echo [whatever]"
 bot.onText(/\/echo (.+)/, async (msg: TelegramBot.Message, match: RegExpExecArray | null) => {
   const chatId = msg.chat.id;
@@ -82,3 +84,27 @@ bot.onText(/\/help ?(.+)?/, async (msg: TelegramBot.Message, match: RegExpExecAr
   }
   globalResolve("ok");
 });
+
+/*
+// Lambda function handler to set the Telegram webhook
+export const setTelegramWebhook: APIGatewayProxyHandler = async () => {
+  try {
+    // Construct the webhook URL for your Lambda function
+    const webhookUrl = `${AWS_API_ENDPOINT}/${process.env.AWS_LAMBDA_FUNCTION_NAME}`;
+
+    // Set the Telegram webhook to your Lambda function
+    const result = await bot.setWebHook(process.env.AWS_SERVERLESS_API  || '');
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: 'Telegram webhook set successfully', result }),
+    };
+  } catch (error) {
+    console.error('Error:', error);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ message: 'Internal Server Error' }),
+    };
+  }
+};*/

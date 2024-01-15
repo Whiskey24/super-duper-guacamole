@@ -18,6 +18,12 @@ provider:
     RDS_USERNAME: ${file(./config.yml):aws.database.user}
     RDS_PASSWORD: ${file(./config.yml):aws.database.password}
     RDS_DATABASE: ${file(./config.yml):aws.database.database}
+    GW_URL:   # https://www.richdevelops.dev/how-do-i-get-my-api-gateway-url
+      Fn::Join:
+        - ""
+        - - "https://"
+          - Ref: "ApiGatewayRestApi"
+          - ".execute-api.${file(./config.yml):aws.region}.amazonaws.com/${file(./config.yml):aws.stage}"
 
 functions:
   bot:
