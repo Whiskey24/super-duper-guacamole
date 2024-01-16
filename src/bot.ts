@@ -85,26 +85,21 @@ bot.onText(/\/help ?(.+)?/, async (msg: TelegramBot.Message, match: RegExpExecAr
   globalResolve("ok");
 });
 
-/*
-// Lambda function handler to set the Telegram webhook
-export const setTelegramWebhook: APIGatewayProxyHandler = async () => {
-  try {
-    // Construct the webhook URL for your Lambda function
-    const webhookUrl = `${AWS_API_ENDPOINT}/${process.env.AWS_LAMBDA_FUNCTION_NAME}`;
-
-    // Set the Telegram webhook to your Lambda function
-    const result = await bot.setWebHook(process.env.AWS_SERVERLESS_API  || '');
-
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ message: 'Telegram webhook set successfully', result }),
-    };
-  } catch (error) {
-    console.error('Error:', error);
-
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ message: 'Internal Server Error' }),
-    };
+async function setTelegramWebhook() {
+  // Check if process.env.GW_URL is undefined or empty
+  if (!process.env.GW_URL) {
+    throw new Error('process.env.GW_URL is undefined or empty');
   }
-};*/
+
+  // Set the Telegram webhook to the API Gateway URL bot path
+  try {  
+    const webhookUrl = `${process.env.GW_URL}/bot`;
+    console.log("Setting Telegram webhook: ", `${webhookUrl}`);
+    const result = await bot.setWebHook(`${webhookUrl}/bot`);
+    return `Telegram webhook set successfully to: ${webhookUrl}`;
+  } catch (error) {
+    console.error('Error setting webhook:', error);
+    throw error;
+  }
+}
+export { setTelegramWebhook };

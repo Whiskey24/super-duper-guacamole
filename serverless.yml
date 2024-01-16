@@ -33,6 +33,9 @@ functions:
       - http:
           path: bot
           method: post
+  setTelegramWebhook:
+    handler: src/bot.setTelegramWebhook
+    logRetentionInDays: 7          
 # TODO
 #  notifications:
 #    handler: src/tasks/notifications.handler
@@ -42,7 +45,13 @@ functions:
 #    handler: src/tasks/webScraping.handler
 #    events:
 #      - schedule: rate(24 hours)
+	
+custom:
+  scripts:
+    hooks:
+      'deploy:finalize': serverless invoke -f setTelegramWebhook
 
 plugins:
   - serverless-offline
   - serverless-plugin-typescript
+  - serverless-plugin-scripts
