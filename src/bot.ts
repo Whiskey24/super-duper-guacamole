@@ -4,6 +4,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } f
 
 // polling must be set to false or the webhook will be removed by Telegram when polling starts
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN || '', { polling: false });
+export {bot};
 
 // took this as an example: https://github.com/royshil/telegram-serverless-ts-bot-tutorial/tree/main
 
@@ -95,7 +96,7 @@ async function setTelegramWebhook() {
   try {  
     const webhookUrl = `${process.env.GW_URL}/bot`;
     console.log("Setting Telegram webhook: ", `${webhookUrl}`);
-    const result = await bot.setWebHook(`${webhookUrl}/bot`);
+    const result = await bot.setWebHook(webhookUrl);
     return `Telegram webhook set successfully to: ${webhookUrl}`;
   } catch (error) {
     console.error('Error setting webhook:', error);
