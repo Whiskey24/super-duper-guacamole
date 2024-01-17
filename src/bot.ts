@@ -1,16 +1,16 @@
 import TelegramBot from 'node-telegram-bot-api';
-import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 //import { handleCommand } from './controllers';
 
 // polling must be set to false or the webhook will be removed by Telegram when polling starts
 const bot = new TelegramBot(process.env.TELEGRAM_TOKEN || '', { polling: false });
-export {bot};
 
+if (!process.env.TELEGRAM_TOKEN) {
+  throw new Error('Telegram token is undefined or empty');
+}
 // took this as an example: https://github.com/royshil/telegram-serverless-ts-bot-tutorial/tree/main
 
 let globalResolve: (value: any) => void = () => {};
-
-console.log("Gateway URL: ", process.env.GW_URL);
 
 // this is the function that will be called by AWS Lambda and will handle all requests from Telegram
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
