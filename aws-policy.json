@@ -18,7 +18,8 @@
 				"lambda:GetFunction",
 				"lambda:TagResource",
 				"lambda:AddPermission",
-				"lambda:ListTags"
+				"lambda:ListTags",
+				"lambda:DeleteFunction"
 			],
 			"Resource": "*"
 		},
