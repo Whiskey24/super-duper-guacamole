@@ -26,8 +26,10 @@ The project has the following structure:
 ## Setup
 
 1. Install the dependencies by running `npm install`.
-2. Set up your Amazon RDS database, rename `config.default.json` to `config.json` and add the connection details in that file.
-3. Create a Telegram bot, see [these instructions](https://core.telegram.org/bots#6-botfather) and with sending BotFather the message `/newbot`. Follow the steps and add the API key of your bot to `config.json`.  
+2. Set up your Amazon account, add a user (in the IAM - Identity and Access Management section) and assign it a permission policy with the right permissions for Lambda deployment (see `aws-policy.json` as an example).
+3. Create an access key for this user and copy its key and secret in this line that you run locally in a terminal `serverless config credentials --provider aws --key YOUR_ACCESS_KEY --secret YOUR_SECRET_KEY`
+4. Copy `config.default.yml` to `config.dev.yml` and add the connection details in that file.
+3. Create a Telegram bot, see [these instructions](https://core.telegram.org/bots#6-botfather) and with sending BotFather the message `/newbot`. Follow the steps and add the API key of your bot to `config.dev.yml`.  
 4. Deploy the AWS Lambda functions by running `serverless deploy`.
 
 ## Usage

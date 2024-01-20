@@ -1,6 +1,6 @@
 {
-  "name": "my-telegram-bot",
-  "version": "1.0.0",
+  "name": "super-duper-quacamole",
+  "version": "0.0.1",
   "description": "A Telegram bot using AWS Lambda, Amazon RDS, and scheduled tasks",
   "main": "src/bot.ts",
   "scripts": {
@@ -22,7 +22,7 @@
   "devDependencies": {
     "@types/aws-lambda": "^8.10.131",
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^16.18.71",
+    "@types/node": "^16.18.73",
     "@types/node-telegram-bot-api": "^0.64.2",
     "jest": "^27.4.5",
     "serverless-offline": "^13.3.2",
@@ -37,8 +37,9 @@
     "lambda",
     "rds",
     "scheduled",
-    "tasks"
+    "tasks",
+    "serverless"
   ],
-  "author": "",
+  "author": "Whiskey24",
   "license": "ISC"
 }
