@@ -6,15 +6,24 @@ if (!process.env.TELEGRAM_TOKEN) {
     throw new Error('Telegram token is undefined or empty');
 }
 
+// use an environment variable to store the list of subscribed chat IDs
+const SUBSCRIBED_CHAT_IDS_ENV_VAR = 'SUBSCRIBED_CHAT_IDS';
+
+// Retrieve subscribed chat IDs from environment variable
+const subscribedChatIds: Set<number> = new Set(
+  process.env[SUBSCRIBED_CHAT_IDS_ENV_VAR]?.split(',').map((id) => parseInt(id, 10)) || []
+);
+
 // Create bot with Telegram token
 export const bot = new Bot(process.env.TELEGRAM_TOKEN)
 
 bot.command("help", async (ctx) => {
   console.log('Received /help command');
   const lines = [
-    'Hi! These are the commands I know:',
+    'Hi! These are the commands (preceded by /) that I know:',
     ' • help - this message',
     ' • rabo - current Rabobank certificate price',
+    ' • subscribe - subscribe to notifications'
   ];
   await ctx.reply(lines.join('\n'));
 });
@@ -29,6 +38,19 @@ bot.command("rabo", async (ctx) => {
 
   // Send the formatted result as a reply
   await ctx.reply(`Rabobank Certificate Information:\n${formattedResult}`);
+});
+
+bot.command('subscribe', async (ctx) => {
+  const chatId = ctx.chat?.id;
+  if (chatId) {
+    subscribedChatIds.add(chatId);
+    // Update environment variable with the new list of subscribed chat IDs
+    process.env[SUBSCRIBED_CHAT_IDS_ENV_VAR] = Array.from(subscribedChatIds).join(',');
+    console.log(`Subscribed chat IDs: ${process.env[SUBSCRIBED_CHAT_IDS_ENV_VAR]}`);
+    await ctx.reply(`Hi! This chat with id ${chatId} has been added to the notification list`);
+  } else {
+    await ctx.reply('Unable to determine chat ID.');
+  }
 });
 
 // webhookCallback will make sure that the correct middleware(listener) function is called
@@ -49,6 +71,7 @@ async function setTelegramWebhook() {
     await bot.api.setWebhook(webhookUrl);
 
     console.log(`Telegram webhook set successfully to: ${webhookUrl}`);
+    return (`Telegram webhook set successfully to: ${webhookUrl}`);
   } catch (error) {
     console.error('Error setting Telegram webhook:', error);
     throw error;

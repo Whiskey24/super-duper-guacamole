@@ -18,6 +18,17 @@ provider:
     RDS_USERNAME: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.user}
     RDS_PASSWORD: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.password}
     RDS_DATABASE: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.database}
+    GW_URL:   # https://www.richdevelops.dev/how-do-i-get-my-api-gateway-url
+      Fn::Join:
+        - ""
+        - - "https://"
+          - Ref: "ApiGatewayRestApi"
+          - ".execute-api.${file(./config.${opt:stage, 'dev'}.yml):aws.region}.amazonaws.com/${file(./config.${opt:stage, 'dev'}.yml):aws.stage}"
+
+custom:
+  scripts:
+    hooks:
+      'deploy:finalize': serverless invoke -f setTelegramWebhook
 
 functions:
   bot:
@@ -48,30 +59,3 @@ plugins:
   - serverless-offline
   - serverless-plugin-typescript
   - serverless-plugin-scripts
-
-custom:
-  stageSpecificConfigs:
-    dev:
-      provider:
-        environment:
-          GW_URL:   # https://www.richdevelops.dev/how-do-i-get-my-api-gateway-url
-            Fn::Join:
-              - ""
-              - - "https://"
-                - Ref: "ApiGatewayRestApi"
-                - ".execute-api.${file(./config.${opt:stage, 'dev'}.yml):aws.region}.amazonaws.com/${file(./config.${opt:stage, 'dev'}.yml):aws.stage}"
-      scripts:
-        hooks:
-          'deploy:finalize': serverless invoke -f setTelegramWebhook
-    prod:
-      provider:
-        environment:
-          GW_URL:
-            Fn::Join:
-              - ""
-              - - "https://"
-                - Ref: "ApiGatewayRestApi"
-                - ".execute-api.${file(./config.${opt:stage, 'prod'}.yml):aws.region}.amazonaws.com/${file(./config.${opt:stage, 'prod'}.yml):aws.stage}"
-      scripts:
-        hooks:
-          'deploy:finalize': serverless invoke -f setTelegramWebhook
