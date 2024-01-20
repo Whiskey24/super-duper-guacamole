@@ -53,6 +53,23 @@ bot.command('subscribe', async (ctx) => {
   }
 });
 
+// Function to send current date and time to all subscribed chat IDs
+async function sendNotificationToSubscribers() {
+  try {
+    const currentDateAndTime = new Date().toLocaleString();
+    const message = `Current date and time: ${currentDateAndTime}`;
+
+    // Iterate through subscribed chat IDs and send the message
+    for (const chatId of subscribedChatIds) {
+      await bot.api.sendMessage(chatId, message);
+    }
+
+    console.log('Message sent successfully to all subscribers:', message);
+  } catch (error) {
+    console.error('Error sending message to subscribers:', error);
+  }
+}
+
 // webhookCallback will make sure that the correct middleware(listener) function is called
 export const handler = webhookCallback(bot, 'aws-lambda-async');
 

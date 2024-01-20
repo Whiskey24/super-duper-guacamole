@@ -44,7 +44,11 @@ functions:
   rabo:
     handler: src/tasks/webScraping.rabo
     logRetentionInDays: 7
-
+  sendNotificationToSubscribers:
+    handler: src/bot.sendNotificationToSubscribers
+    logRetentionInDays: 7
+    events:
+      - schedule: cron(15 22 * * ? *)
 # TODO
 #  notifications:
 #    handler: src/tasks/notifications.handler

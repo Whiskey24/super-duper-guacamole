@@ -101,7 +101,8 @@
 				"iam:DetachRolePolicy",
 				"iam:GetRole",
 				"iam:PutRolePolicy",
-				"iam:PassRole"
+				"iam:PassRole",
+				"events:DescribeRule"
 			],
 			"Resource": "arn:aws:iam::471112503933:role/super-duper-quacamole-dev-eu-central-1-lambdaRole"
 		}
