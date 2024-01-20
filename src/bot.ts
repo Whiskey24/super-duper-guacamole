@@ -1,4 +1,5 @@
 import { Bot, webhookCallback } from 'grammy'
+import * as webScraping from './tasks/webScraping';
 
 // Check if process.env.TELEGRAM_TOKEN is undefined or empty
 if (!process.env.TELEGRAM_TOKEN) {
@@ -20,7 +21,14 @@ bot.command("help", async (ctx) => {
 
 bot.command("rabo", async (ctx) => {
   console.log('Received /rabo command');
-  await ctx.reply("Fetching Rabobank certificate price...");
+  await ctx.reply("Fetching Rabobank certificate details...");
+  const result = await webScraping.rabo();
+
+  // Convert the result object to a formatted string
+  const formattedResult = Object.entries(result).map(([key, value]) => `${key}: ${value}`).join('\n');
+
+  // Send the formatted result as a reply
+  await ctx.reply(`Rabobank Certificate Information:\n${formattedResult}`);
 });
 
 // webhookCallback will make sure that the correct middleware(listener) function is called

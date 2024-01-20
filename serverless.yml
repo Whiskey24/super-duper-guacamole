@@ -29,7 +29,11 @@ functions:
           method: post
   setTelegramWebhook:
     handler: src/bot.setTelegramWebhook
-    logRetentionInDays: 7          
+    logRetentionInDays: 7
+  rabo:
+    handler: src/tasks/webScraping.rabo
+    logRetentionInDays: 7
+
 # TODO
 #  notifications:
 #    handler: src/tasks/notifications.handler

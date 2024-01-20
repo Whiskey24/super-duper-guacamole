@@ -1,28 +1,29 @@
-/* TODO
 import axios from 'axios';
-import cheerio from 'cheerio'; 
+import cheerio from 'cheerio';
 
-import { queryDatabase } from '../database';
-
-async function scrapeWebsite(url: string): Promise<void> {
+async function rabo(): Promise<{ [key: string]: string }> {
   try {
-    const response = await axios.get(url);
+    console.log('Fetching webpage for Rabo certificates...');
+    const keyValues: {[key: string]: string} = {}; // Add index signature to allow indexing with a string
+    const response = await axios.get('https://www.belegger.nl/obligatie-koers/600015811/default.aspx');
     const $ = cheerio.load(response.data);
 
-    // Use cheerio to scrape data from the website
-    // This is just an example, replace with actual selectors
-    const data = $('selector').map((i, element) => $(element).text()).get();
+    $('table.SimpleTable tr').each((index, element) => {
+      const labelCell = $(element).find('td.LabelCell').text().trim();
+      const valueCell = $(element).find('td.ValueCell span').text().trim();
 
-    // Process the data as needed
-    // This is just an example, replace with actual processing
-    const processedData = data.map(item => item.trim());
+      // Skip rows without a label or value
+      if (labelCell && valueCell) {
+          keyValues[labelCell] = valueCell;
+      }
+    });
 
-    // Store the processed data in the database
-    await queryDatabase('INSERT INTO table (column) VALUES (?)', [processedData]);
-  } catch (error: any) {
-    console.error(`Failed to scrape website: ${error.message}`);
+  //console.log(JSON.stringify(keyValues, null, 2));
+  return keyValues;
+
+  } catch (error) {
+    console.error('Error fetching webpage:', error);
+    throw error;
   }
 }
-
-export default scrapeWebsite;
-*/
+export { rabo };
