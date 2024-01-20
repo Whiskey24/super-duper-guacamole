@@ -4,26 +4,20 @@ configValidationMode: warn
 	
 package:
   individually: true
-    
+
 provider:
-  name: ${file(./config.yml):aws.name}
-  runtime: ${file(./config.yml):aws.runtime}
-  stage: ${file(./config.yml):aws.stage}
-  region: ${file(./config.yml):aws.region}
+  name: ${file(./config.${opt:stage, 'dev'}.yml):aws.name}
+  runtime: ${file(./config.${opt:stage, 'dev'}.yml):aws.runtime}
+  stage: ${file(./config.${opt:stage, 'dev'}.yml):aws.stage}
+  region: ${file(./config.${opt:stage, 'dev'}.yml):aws.region}
   deploymentBucket:
-    name: ${file(./config.yml):aws.deploymentBucket.name}
+    name: ${file(./config.${opt:stage, 'dev'}.yml):aws.deploymentBucket.name}
   environment:
-    TELEGRAM_TOKEN: ${file(./config.yml):telegramBotToken}
-    RDS_HOSTNAME: ${file(./config.yml):aws.database.host}
-    RDS_USERNAME: ${file(./config.yml):aws.database.user}
-    RDS_PASSWORD: ${file(./config.yml):aws.database.password}
-    RDS_DATABASE: ${file(./config.yml):aws.database.database}
-    GW_URL:   # https://www.richdevelops.dev/how-do-i-get-my-api-gateway-url
-      Fn::Join:
-        - ""
-        - - "https://"
-          - Ref: "ApiGatewayRestApi"
-          - ".execute-api.${file(./config.yml):aws.region}.amazonaws.com/${file(./config.yml):aws.stage}"
+    TELEGRAM_TOKEN: ${file(./config.${opt:stage, 'dev'}.yml):telegramBotToken}
+    RDS_HOSTNAME: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.host}
+    RDS_USERNAME: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.user}
+    RDS_PASSWORD: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.password}
+    RDS_DATABASE: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.database}
 
 functions:
   bot:
@@ -45,13 +39,35 @@ functions:
 #    handler: src/tasks/webScraping.handler
 #    events:
 #      - schedule: rate(24 hours)
-	
-custom:
-  scripts:
-    hooks:
-      'deploy:finalize': serverless invoke -f setTelegramWebhook
 
 plugins:
   - serverless-offline
   - serverless-plugin-typescript
   - serverless-plugin-scripts
+
+custom:
+  stageSpecificConfigs:
+    dev:
+      provider:
+        environment:
+          GW_URL:   # https://www.richdevelops.dev/how-do-i-get-my-api-gateway-url
+            Fn::Join:
+              - ""
+              - - "https://"
+                - Ref: "ApiGatewayRestApi"
+                - ".execute-api.${file(./config.${opt:stage, 'dev'}.yml):aws.region}.amazonaws.com/${file(./config.${opt:stage, 'dev'}.yml):aws.stage}"
+      scripts:
+        hooks:
+          'deploy:finalize': serverless invoke -f setTelegramWebhook
+    prod:
+      provider:
+        environment:
+          GW_URL:
+            Fn::Join:
+              - ""
+              - - "https://"
+                - Ref: "ApiGatewayRestApi"
+                - ".execute-api.${file(./config.${opt:stage, 'prod'}.yml):aws.region}.amazonaws.com/${file(./config.${opt:stage, 'prod'}.yml):aws.stage}"
+      scripts:
+        hooks:
+          'deploy:finalize': serverless invoke -f setTelegramWebhook

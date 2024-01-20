@@ -8,13 +8,23 @@ if (!process.env.TELEGRAM_TOKEN) {
 // Create bot with Telegram token
 export const bot = new Bot(process.env.TELEGRAM_TOKEN)
 
-// attach all middleware
-bot.on('message', async ctx => {
-    await ctx.reply('Hi there! This is a bot created with grammy.')
-})
+bot.command("help", async (ctx) => {
+  console.log('Received /help command');
+  const lines = [
+    'Hi! These are the commands I know:',
+    ' • help - this message',
+    ' • rabo - current Rabobank certificate price',
+  ];
+  await ctx.reply(lines.join('\n'));
+});
+
+bot.command("rabo", async (ctx) => {
+  console.log('Received /rabo command');
+  await ctx.reply("Fetching Rabobank certificate price...");
+});
 
 // webhookCallback will make sure that the correct middleware(listener) function is called
-export const handler = webhookCallback(bot, 'aws-lambda-async')
+export const handler = webhookCallback(bot, 'aws-lambda-async');
 
 // function to set the webhook on Telegram with the API Gateway URL
 async function setTelegramWebhook() {
