@@ -6,13 +6,38 @@ if (!process.env.TELEGRAM_TOKEN) {
     throw new Error('Telegram token is undefined or empty');
 }
 
-// use an environment variable to store the list of subscribed chat IDs
-const SUBSCRIBED_CHAT_IDS_ENV_VAR = 'SUBSCRIBED_CHAT_IDS';
+const AWS = require('aws-sdk');
+const s3 = new AWS.S3();
 
-// Retrieve subscribed chat IDs from environment variable
-const subscribedChatIds: Set<number> = new Set(
-  process.env[SUBSCRIBED_CHAT_IDS_ENV_VAR]?.split(',').map((id) => parseInt(id, 10)) || []
-);
+// Function to fetch subscribed chat IDs from S3
+async function getSubscribedChatIds() {
+  try {
+    console.log(`Fetching subscribed chat IDs from S3 bucket ${process.env.S3_BUCKET}...`);
+    const s3Object = await s3.getObject({
+      Bucket: process.env.S3_BUCKET,
+      Key: 'subscribed-chat-ids.json',
+    }).promise();
+
+    return new Set(JSON.parse(s3Object.Body.toString()));
+  } catch (error) {
+    console.error('Error fetching subscribed chat IDs from S3:', error);
+    return new Set(); // Return an empty set if there's an error
+  }
+}
+
+// Function to save subscribed chat IDs to S3
+async function saveSubscribedChatIds(subscribedChatIds: Set<number>): Promise<void> {
+  try {
+    await s3.putObject({
+      Bucket: process.env.S3_BUCKET,
+      Key: 'subscribed-chat-ids.json',
+      Body: JSON.stringify(Array.from(subscribedChatIds)),
+    }).promise();
+  } catch (error) {
+    console.error('Error saving subscribed chat IDs to S3:', error);
+    throw error; // Rethrow the error after logging
+  }
+}
 
 // Create bot with Telegram token
 export const bot = new Bot(process.env.TELEGRAM_TOKEN)
@@ -40,28 +65,52 @@ bot.command("rabo", async (ctx) => {
   await ctx.reply(`Rabobank Certificate Information:\n${formattedResult}`);
 });
 
+// Subscribe chatId to notifications
 bot.command('subscribe', async (ctx) => {
   const chatId = ctx.chat?.id;
-  if (chatId) {
-    subscribedChatIds.add(chatId);
-    // Update environment variable with the new list of subscribed chat IDs
-    process.env[SUBSCRIBED_CHAT_IDS_ENV_VAR] = Array.from(subscribedChatIds).join(',');
-    console.log(`Subscribed chat IDs: ${process.env[SUBSCRIBED_CHAT_IDS_ENV_VAR]}`);
-    await ctx.reply(`Hi! This chat with id ${chatId} has been added to the notification list`);
+
+  // Only add chatId if it is a valid number
+  if (chatId && !isNaN(chatId)) {
+    let subscribedChatIds: Set<number> = await getSubscribedChatIds() as Set<number>; // Explicitly type the variable
+
+    // Log current subscribed chat IDs before adding the new one
+    console.log(`Current subscribed chat IDs: ${Array.from(subscribedChatIds).join(', ')}`);
+
+    subscribedChatIds.add(Number(chatId));
+
+    try {
+      // Save subscribed chat IDs to S3
+      await saveSubscribedChatIds(subscribedChatIds);
+      console.log(`Subscribed chat IDs: ${Array.from(subscribedChatIds).join(', ')}`);
+
+      await ctx.reply(`Hi! This chat with id ${chatId} has been added to the notification list`);
+    } catch (error) {
+      console.error('Error saving subscribed chat IDs:', error);
+      await ctx.reply('An error occurred while trying to subscribe. Please try again.');
+    }
   } else {
-    await ctx.reply('Unable to determine chat ID.');
+    await ctx.reply('Could not find the chat ID. Please try to subscribe again.');
   }
 });
 
 // Function to send current date and time to all subscribed chat IDs
-async function sendNotificationToSubscribers() {
+async function sendNotificationToSubscribers(bot: Bot, deploymentBucketName: string): Promise<void> {
   try {
+    // Get the subscribed chat IDs
+    const subscribedChatIds = await getSubscribedChatIds();
+
+    // Check if there are subscribed chat IDs
+    if (subscribedChatIds.size === 0) {
+      console.log('No subscribed chat IDs found. Skipping message sending.');
+      return;
+    }
+
     const currentDateAndTime = new Date().toLocaleString();
     const message = `Current date and time: ${currentDateAndTime}`;
 
     // Iterate through subscribed chat IDs and send the message
     for (const chatId of subscribedChatIds) {
-      await bot.api.sendMessage(chatId, message);
+      await bot.api.sendMessage(String(chatId), message);
     }
 
     console.log('Message sent successfully to all subscribers:', message);
@@ -69,6 +118,8 @@ async function sendNotificationToSubscribers() {
     console.error('Error sending message to subscribers:', error);
   }
 }
+
+export { sendNotificationToSubscribers}
 
 // webhookCallback will make sure that the correct middleware(listener) function is called
 export const handler = webhookCallback(bot, 'aws-lambda-async');
