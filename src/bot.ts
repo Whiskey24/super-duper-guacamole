@@ -40,7 +40,20 @@ async function saveSubscribedChatIds(subscribedChatIds: Set<number>): Promise<vo
 }
 
 // Create bot with Telegram token
-export const bot = new Bot(process.env.TELEGRAM_TOKEN)
+let botInstance: Bot;
+
+// Factory function to create the bot instance
+function createBot() {
+  try {
+    return new Bot(process.env.TELEGRAM_TOKEN ?? '');
+  } catch (error) {
+    console.error('Error creating bot:', error);
+    throw error;
+  }
+}
+
+// Export the bot instance
+export const bot = createBot();
 
 bot.command("help", async (ctx) => {
   console.log('Received /help command');
@@ -108,8 +121,17 @@ async function sendNotificationToSubscribers(bot: Bot, deploymentBucketName: str
     const currentDateAndTime = new Date().toLocaleString();
     const message = `Current date and time: ${currentDateAndTime}`;
 
+    console.log('botinfo: ', bot.api.getMe());
+
+    try {
+      await bot.api.sendMessage(833773957, "test message");
+    } catch (error) {
+      console.error('Error sending test message to 833773957', error);
+    }
+
     // Iterate through subscribed chat IDs and send the message
     for (const chatId of subscribedChatIds) {
+      console.log(`Sending message to chat ID ${chatId}: ${message}`);
       await bot.api.sendMessage(String(chatId), message);
     }
 
