@@ -48,8 +48,8 @@ functions:
   sendNotificationToSubscribers:
     handler: src/bot.sendNotificationToSubscribers
     logRetentionInDays: 7
-    events:
-      - schedule: rate(5 minutes)
+    # events:
+    #   - schedule: rate(5 minutes)
 # TODO
 #  notifications:
 #    handler: src/tasks/notifications.handler

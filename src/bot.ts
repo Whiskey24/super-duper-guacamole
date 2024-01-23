@@ -40,20 +40,7 @@ async function saveSubscribedChatIds(subscribedChatIds: Set<number>): Promise<vo
 }
 
 // Create bot with Telegram token
-let botInstance: Bot;
-
-// Factory function to create the bot instance
-function createBot() {
-  try {
-    return new Bot(process.env.TELEGRAM_TOKEN ?? '');
-  } catch (error) {
-    console.error('Error creating bot:', error);
-    throw error;
-  }
-}
-
-// Export the bot instance
-export const bot = createBot();
+export const bot = new Bot(process.env.TELEGRAM_TOKEN)
 
 bot.command("help", async (ctx) => {
   console.log('Received /help command');
@@ -107,7 +94,7 @@ bot.command('subscribe', async (ctx) => {
 });
 
 // Function to send current date and time to all subscribed chat IDs
-async function sendNotificationToSubscribers(bot: Bot, deploymentBucketName: string): Promise<void> {
+async function sendNotificationToSubscribers(): Promise<void> {
   try {
     // Get the subscribed chat IDs
     const subscribedChatIds = await getSubscribedChatIds();
@@ -121,26 +108,16 @@ async function sendNotificationToSubscribers(bot: Bot, deploymentBucketName: str
     const currentDateAndTime = new Date().toLocaleString();
     const message = `Current date and time: ${currentDateAndTime}`;
 
-    console.log('botinfo: ', bot.api.getMe());
-
-    try {
-      await bot.api.sendMessage(833773957, "test message");
-    } catch (error) {
-      console.error('Error sending test message to 833773957', error);
-    }
-
     // Iterate through subscribed chat IDs and send the message
     for (const chatId of subscribedChatIds) {
-      console.log(`Sending message to chat ID ${chatId}: ${message}`);
       await bot.api.sendMessage(String(chatId), message);
     }
 
-    console.log('Message sent successfully to all subscribers:', message);
+    console.log(`Message sent successfully to ${subscribedChatIds.size} subscribers: `, message);
   } catch (error) {
     console.error('Error sending message to subscribers:', error);
   }
 }
-
 export { sendNotificationToSubscribers}
 
 // webhookCallback will make sure that the correct middleware(listener) function is called
