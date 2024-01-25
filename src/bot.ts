@@ -56,14 +56,27 @@ bot.command("help", async (ctx) => {
 bot.command("rabo", async (ctx) => {
   console.log('Received /rabo command');
   await ctx.reply("Fetching Rabobank certificate details...");
-  const result = await webScraping.rabo();
+  const webpageData = await webScraping.rabo();
 
-  // Convert the result object to a formatted string
-  const formattedResult = Object.entries(result).map(([key, value]) => `${key}: ${value}`).join('\n');
-
-  // Send the formatted result as a reply
-  await ctx.reply(`Rabobank Certificate Information:\n${formattedResult}`);
+  // Convert the result object to a formatted string, escape special characters and send the message
+  const formattedResult = Object.entries(webpageData.keyValues).map(([key, value]) => `${key}: ${value}`).join('\n');
+  const escapedFormattedResult = escapeSpecialCharacters(formattedResult);
+  const message = `${escapedFormattedResult}\n\n[More Details](${webpageData.url})`;
+  await ctx.reply(message,{ parse_mode: "MarkdownV2" });
 });
+
+
+// Characters to be escaped
+const escapeCharacters = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
+
+// Function to escape special characters with '\' for MarkdownV2
+function escapeSpecialCharacters(string: string): string {
+  let newString = '';
+  for (let i = 0; i < string.length; i++) {
+    newString += escapeCharacters.includes(string[i]) ? '\\' + string[i] : string[i];
+  }
+  return newString;
+}
 
 // Subscribe chatId to notifications
 bot.command('subscribe', async (ctx) => {
