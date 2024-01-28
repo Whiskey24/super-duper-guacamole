@@ -1,9 +1,11 @@
-import { Bot, webhookCallback } from 'grammy'
+import { Bot, webhookCallback, InlineKeyboard } from 'grammy'
 import * as webScraping from './tasks/webScraping';
+//import { Context } from 'aws-sdk/clients/personalizeruntime';
+
 
 // Check if process.env.TELEGRAM_TOKEN is undefined or empty
 if (!process.env.TELEGRAM_TOKEN) {
-    throw new Error('Telegram token is undefined or empty');
+  throw new Error('Telegram token is undefined or empty');
 }
 
 const AWS = require('aws-sdk');
@@ -52,18 +54,26 @@ bot.command("help", async (ctx) => {
   ];
   await ctx.reply(lines.join('\n'));
 });
-
-bot.command("rabo", async (ctx) => {
-  console.log('Received /rabo command');
+import { Context, MiddlewareFn } from 'grammy';
+// Function to fetch Rabobank certificate details and send the response
+const handleRaboCommand: MiddlewareFn<Context> = async (ctx) => {
+  console.log('Received /rabo command or callback query');
   await ctx.reply("Fetching Rabobank certificate details...");
   const webpageData = await webScraping.rabo();
 
-  // Convert the result object to a formatted string, escape special characters and send the message
+  // Convert the result object to a formatted string, escape special characters, and send the message
   const formattedResult = Object.entries(webpageData.keyValues).map(([key, value]) => `${key}: ${value}`).join('\n');
   const escapedFormattedResult = escapeSpecialCharacters(formattedResult);
   const message = `${escapedFormattedResult}\n\n[More Details](${webpageData.url})`;
-  await ctx.reply(message,{ parse_mode: "MarkdownV2" });
-});
+  await ctx.reply(message, { parse_mode: "MarkdownV2" });
+};
+
+// Command handler
+bot.command("rabo", handleRaboCommand);
+
+// Callback query handler
+bot.callbackQuery('rabo', handleRaboCommand);
+bot.callbackQuery('test', (ctx) => ctx.reply('You chose the test option'));
 
 
 // Characters to be escaped
@@ -132,6 +142,21 @@ async function sendNotificationToSubscribers(): Promise<void> {
   }
 }
 export { sendNotificationToSubscribers}
+
+bot.command("menu", async (ctx) => {
+  console.log('Received /menu command');
+
+  const inlineKeyboard = new InlineKeyboard()
+  .text("Rabobank certificaten", "rabo").row()
+  .text("Test optie", "test");
+
+  await ctx.reply('Choose an option:', { reply_markup: inlineKeyboard });
+});
+
+
+
+
+
 
 // webhookCallback will make sure that the correct middleware(listener) function is called
 export const handler = webhookCallback(bot, 'aws-lambda-async');
