@@ -1,44 +1,10 @@
-import { Bot, webhookCallback, InlineKeyboard } from 'grammy'
+import { Bot, webhookCallback, InlineKeyboard, Context, MiddlewareFn } from 'grammy'
 import * as webScraping from './tasks/webScraping';
-//import { Context } from 'aws-sdk/clients/personalizeruntime';
-
+import * as s3 from './database/s3Storage';
 
 // Check if process.env.TELEGRAM_TOKEN is undefined or empty
 if (!process.env.TELEGRAM_TOKEN) {
   throw new Error('Telegram token is undefined or empty');
-}
-
-const AWS = require('aws-sdk');
-const s3 = new AWS.S3();
-
-// Function to fetch subscribed chat IDs from S3
-async function getSubscribedChatIds() {
-  try {
-    console.log(`Fetching subscribed chat IDs from S3 bucket ${process.env.S3_BUCKET}...`);
-    const s3Object = await s3.getObject({
-      Bucket: process.env.S3_BUCKET,
-      Key: 'subscribed-chat-ids.json',
-    }).promise();
-
-    return new Set(JSON.parse(s3Object.Body.toString()));
-  } catch (error) {
-    console.error('Error fetching subscribed chat IDs from S3:', error);
-    return new Set(); // Return an empty set if there's an error
-  }
-}
-
-// Function to save subscribed chat IDs to S3
-async function saveSubscribedChatIds(subscribedChatIds: Set<number>): Promise<void> {
-  try {
-    await s3.putObject({
-      Bucket: process.env.S3_BUCKET,
-      Key: 'subscribed-chat-ids.json',
-      Body: JSON.stringify(Array.from(subscribedChatIds)),
-    }).promise();
-  } catch (error) {
-    console.error('Error saving subscribed chat IDs to S3:', error);
-    throw error; // Rethrow the error after logging
-  }
 }
 
 // Create bot with Telegram token
@@ -49,12 +15,23 @@ bot.command("help", async (ctx) => {
   const lines = [
     'Hi! These are the commands (preceded by /) that I know:',
     ' • help - this message',
+    ' • menu - show a menu with options',
     ' • rabo - current Rabobank certificate price',
     ' • subscribe - subscribe to notifications'
   ];
   await ctx.reply(lines.join('\n'));
 });
-import { Context, MiddlewareFn } from 'grammy';
+
+bot.command("menu", async (ctx) => {
+  console.log('Received /menu command');
+
+  const inlineKeyboard = new InlineKeyboard()
+  .text("Rabobank certificaten", "rabo").row()
+  .text("Test optie", "test");
+
+  await ctx.reply('Choose an option:', { reply_markup: inlineKeyboard });
+});
+
 // Function to fetch Rabobank certificate details and send the response
 const handleRaboCommand: MiddlewareFn<Context> = async (ctx) => {
   console.log('Received /rabo command or callback query');
@@ -94,7 +71,7 @@ bot.command('subscribe', async (ctx) => {
 
   // Only add chatId if it is a valid number
   if (chatId && !isNaN(chatId)) {
-    let subscribedChatIds: Set<number> = await getSubscribedChatIds() as Set<number>; // Explicitly type the variable
+    let subscribedChatIds: Set<number> = await s3.getSubscribedChatIds() as Set<number>; // Explicitly type the variable
 
     // Log current subscribed chat IDs before adding the new one
     console.log(`Current subscribed chat IDs: ${Array.from(subscribedChatIds).join(', ')}`);
@@ -103,7 +80,7 @@ bot.command('subscribe', async (ctx) => {
 
     try {
       // Save subscribed chat IDs to S3
-      await saveSubscribedChatIds(subscribedChatIds);
+      await s3.saveSubscribedChatIds(subscribedChatIds);
       console.log(`Subscribed chat IDs: ${Array.from(subscribedChatIds).join(', ')}`);
 
       await ctx.reply(`Hi! This chat with id ${chatId} has been added to the notification list`);
@@ -120,7 +97,7 @@ bot.command('subscribe', async (ctx) => {
 async function sendNotificationToSubscribers(): Promise<void> {
   try {
     // Get the subscribed chat IDs
-    const subscribedChatIds = await getSubscribedChatIds();
+    const subscribedChatIds = await s3.getSubscribedChatIds();
 
     // Check if there are subscribed chat IDs
     if (subscribedChatIds.size === 0) {
@@ -142,19 +119,6 @@ async function sendNotificationToSubscribers(): Promise<void> {
   }
 }
 export { sendNotificationToSubscribers}
-
-bot.command("menu", async (ctx) => {
-  console.log('Received /menu command');
-
-  const inlineKeyboard = new InlineKeyboard()
-  .text("Rabobank certificaten", "rabo").row()
-  .text("Test optie", "test");
-
-  await ctx.reply('Choose an option:', { reply_markup: inlineKeyboard });
-});
-
-
-
 
 
 

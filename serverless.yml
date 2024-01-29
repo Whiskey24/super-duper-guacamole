@@ -15,6 +15,7 @@ provider:
   environment:
     TELEGRAM_TOKEN: ${file(./config.${opt:stage, 'dev'}.yml):telegramBotToken}
     S3_BUCKET: ${file(./config.${opt:stage, 'dev'}.yml):aws.deploymentBucket.name} # to store chat ids
+    CHAT_DATA_FOLDER: ${file(./config.${opt:stage, 'dev'}.yml):chatDataFolder}
     RDS_HOSTNAME: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.host}
     RDS_USERNAME: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.user}
     RDS_PASSWORD: ${file(./config.${opt:stage, 'dev'}.yml):aws.database.password}

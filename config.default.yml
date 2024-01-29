@@ -12,3 +12,4 @@ aws:
     database: database name
     port: database port
 telegramBotToken: 'your bot API key'
+chatDataFolder: chatData

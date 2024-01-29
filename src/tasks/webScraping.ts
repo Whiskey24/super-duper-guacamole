@@ -19,8 +19,6 @@ async function rabo(): Promise<WebpageData> {
           keyValues[labelCell] = valueCell;
       }
     });
-
-  //console.log(JSON.stringify(keyValues, null, 2));
   
   const webpageData: WebpageData = {
     url: url,
@@ -28,7 +26,6 @@ async function rabo(): Promise<WebpageData> {
   };
 
   return webpageData;
-
   } catch (error) {
     console.error('Error fetching webpage:', error);
     throw error;
