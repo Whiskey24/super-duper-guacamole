@@ -1,0 +1,22 @@
+[
+    {
+        "id": 1600015811,
+        "key": "rabo",
+        "name": "Rabobank certificaten"
+    },
+    {
+        "id": 60050880,
+        "key": "nt-emerge",
+        "name": "Northern Trust Emerging Markets"
+    },
+    {
+        "id": 60050877,
+        "key": "nt-world",
+        "name": "Northern Trust World Fund"
+    },
+    {
+        "id": 60053928,
+        "key": "nt-smallcap",
+        "name": "Northern Trust Small Cap"
+    }
+]

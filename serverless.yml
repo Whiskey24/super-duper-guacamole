@@ -4,6 +4,8 @@ configValidationMode: warn
 	
 package:
   individually: true
+  include:
+    - src/subscriptions.json
 
 provider:
   name: ${file(./config.${opt:stage, 'dev'}.yml):aws.name}
