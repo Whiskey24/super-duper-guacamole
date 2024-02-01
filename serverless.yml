@@ -4,7 +4,7 @@ configValidationMode: warn
 	
 package:
   individually: true
-  include:
+  patterns:
     - src/subscriptions.json
 
 provider:
@@ -36,20 +36,20 @@ custom:
 
 functions:
   bot:
-    handler: src/bot.handler
+    handler: src/bot/bot.handler
     logRetentionInDays: 7
     events:
       - http:
           path: bot
           method: post
   setTelegramWebhook:
-    handler: src/bot.setTelegramWebhook
+    handler: src/bot/bot.setTelegramWebhook
     logRetentionInDays: 7
   rabo:
     handler: src/tasks/webScraping.rabo
     logRetentionInDays: 7
   sendNotificationToSubscribers:
-    handler: src/bot.sendNotificationToSubscribers
+    handler: src/bot/bot.sendNotificationToSubscribers
     logRetentionInDays: 7
     # events:
     #   - schedule: rate(5 minutes)
