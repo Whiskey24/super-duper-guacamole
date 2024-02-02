@@ -15,32 +15,41 @@ export const bot = new Bot(process.env.TELEGRAM_TOKEN)
 // webhookCallback will make sure that the correct middleware(listener) function is called
 export const handler = webhookCallback(bot, 'aws-lambda-async');
 
-bot.command("help", async (ctx) => {
-  console.log('Received /help command');
-  const lines = [
-    'Hi! These are the commands (preceded by /) that I know:',
-    ' • help - this message',
-    ' • menu - show a menu with options',
-    ' • rabo - current Rabobank certificate price'
-  ];
-  await ctx.reply(lines.join('\n'));
+bot.hears("help", async (ctx) => {
+  await ctx.reply("Hi! I'm Super Duper Quacamole! Send /s or /start to put me to work.", {
+    reply_parameters: { message_id: ctx.msg.message_id },
+  });
 });
 
-bot.command("menu", async (ctx) => {
-  console.log('Received /menu command');
+// bot.command("help", async (ctx) => {
+//   console.log('Received /help command');
+//   const lines = [
+//     'Hi! These are the commands (preceded by /) that I know:',
+//     ' • help - this message',
+//     ' • menu - show a menu with options',
+//     ' • rabo - current Rabobank certificate price'
+//   ];
+//   await ctx.reply(lines.join('\n'));
+// });
+
+// sendMenu will send a menu with options to the user when the /s or /start command is received
+const sendMenu = async (ctx: Context) => {
+  console.log('Received command');
   const inlineKeyboard = new InlineKeyboard()
-  .text("Rabobank certificaten", "rabo").row()
-  .text("Abonneren", "subscribe");
+    .text("Koers informatie", "info")
+    .text("Abonneren", "subscribe");
   await ctx.reply('Choose an option:', { reply_markup: inlineKeyboard });
-});
+};
+bot.command("s", sendMenu);
+bot.command("start", sendMenu);
 
 bot.callbackQuery('subscribe', async (ctx) => {
-  console.log('Received /subscibe callback');
+  console.log('Received subscribe callback');
   const inlineKeyboard = new InlineKeyboard();
   
   // add a button for each subscription
   subscriptions.forEach((subscription: any, index: number) => {
-    inlineKeyboard.text(subscription.name, subscription.key);
+    inlineKeyboard.text(subscription.name, `sub-${subscription.key}`); // Add prefix to distinguish from other callbacks
     if ((index + 1) % 2 === 0) {  // Put 2 buttons in one row
       inlineKeyboard.row();
     }
@@ -49,10 +58,26 @@ bot.callbackQuery('subscribe', async (ctx) => {
   await ctx.reply('Choose an option:', { reply_markup: inlineKeyboard });
 });
 
+bot.callbackQuery('info', async (ctx) => {
+  console.log('Received info callback');
+  const inlineKeyboard = new InlineKeyboard();
+  
+  // add a button for each subscription
+  subscriptions.forEach((subscription: any, index: number) => {
+    inlineKeyboard.text(subscription.name, `info-${subscription.key}`);
+    if ((index + 1) % 2 === 0) {  // Put 2 buttons in one row
+      inlineKeyboard.row();
+    }
+  });
+
+  await ctx.reply('Choose an option:', { reply_markup: inlineKeyboard });
+});
+
+
 // create a callback query handler for each subscription
 subscriptions.forEach((subscription: any) => {
-  bot.callbackQuery(subscription.key, async (ctx) => {
-    console.log(`Received ${subscription.key} callback`);
+  bot.callbackQuery(`sub-${subscription.key}`, async (ctx) => {
+    console.log(`Received sub-${subscription.key} callback`);
     const chatId = ctx.chat?.id;
     
     // load chat data from S3, add subscription if not already present, and save again
@@ -71,25 +96,39 @@ subscriptions.forEach((subscription: any) => {
   });
 })
 
-// Function to fetch Rabobank certificate details and send the response
-const handleRaboCommand: MiddlewareFn<Context> = async (ctx) => {
-  console.log('Received /rabo command or callback query');
-  await ctx.reply("Fetching Rabobank certificate details...");
-  const webpageData = await webScraping.rabo();
+// create a callback query handler for each subscription for info
+subscriptions.forEach((subscription: any) => {
+  bot.callbackQuery(`info-${subscription.key}`, async (ctx) => {
+    console.log(`Received info-${subscription.key} callback`);
+    const chatId = ctx.chat?.id;
+    const webpageData = await webScraping.beleggerNl(subscription.id);
+    // Convert the result object to a formatted string, escape special characters, and send the message
+    const formattedResult = Object.entries(webpageData.keyValues).map(([key, value]) => `${key}: ${value}`).join('\n');
+    const escapedFormattedResult = escapeSpecialCharacters(formattedResult);
+    const message = `${escapedFormattedResult}\n\n[More Details](${webpageData.url})`;
+    await ctx.reply(message, { parse_mode: "MarkdownV2" });
+  });
+})
 
-  // Convert the result object to a formatted string, escape special characters, and send the message
-  const formattedResult = Object.entries(webpageData.keyValues).map(([key, value]) => `${key}: ${value}`).join('\n');
-  const escapedFormattedResult = escapeSpecialCharacters(formattedResult);
-  const message = `${escapedFormattedResult}\n\n[More Details](${webpageData.url})`;
-  await ctx.reply(message, { parse_mode: "MarkdownV2" });
-};
+// // Function to fetch Rabobank certificate details and send the response
+// const handleRaboCommand: MiddlewareFn<Context> = async (ctx) => {
+//   console.log('Received /rabo command or callback query');
+//   await ctx.reply("Fetching Rabobank certificate details...");
+//   const webpageData = await webScraping.rabo();
 
-// Command handler
-bot.command("rabo", handleRaboCommand);
+//   // Convert the result object to a formatted string, escape special characters, and send the message
+//   const formattedResult = Object.entries(webpageData.keyValues).map(([key, value]) => `${key}: ${value}`).join('\n');
+//   const escapedFormattedResult = escapeSpecialCharacters(formattedResult);
+//   const message = `${escapedFormattedResult}\n\n[More Details](${webpageData.url})`;
+//   await ctx.reply(message, { parse_mode: "MarkdownV2" });
+// };
 
-// Callback query handler
-bot.callbackQuery('rabo', handleRaboCommand);
-bot.callbackQuery('test', (ctx) => ctx.reply('You chose the test option'));
+// // Command handler
+// bot.command("rabo", handleRaboCommand);
+
+// // Callback query handler
+// bot.callbackQuery('rabo', handleRaboCommand);
+// bot.callbackQuery('test', (ctx) => ctx.reply('You chose the test option'));
 
 // Characters to be escaped
 const escapeCharacters = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
