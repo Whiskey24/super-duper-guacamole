@@ -43,7 +43,7 @@ functions:
           path: bot
           method: post
   setTelegramWebhook:
-    handler: src/bot/bot.setTelegramWebhook
+    handler: src/bot/webhook.setTelegramWebhook
     logRetentionInDays: 7
   rabo:
     handler: src/tasks/webScraping.rabo
