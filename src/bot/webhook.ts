@@ -29,4 +29,3 @@ export const setTelegramWebhook = async function setTelegramWebhook() {
     throw error;
   }
 }
-//export { setTelegramWebhook };

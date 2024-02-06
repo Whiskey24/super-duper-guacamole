@@ -16,25 +16,14 @@ export const bot = new Bot(process.env.TELEGRAM_TOKEN)
 export const handler = webhookCallback(bot, 'aws-lambda-async');
 
 bot.hears("help", async (ctx) => {
-  await ctx.reply("Hi! I'm Super Duper Quacamole! Send /s or /start to put me to work.", {
+  await ctx.reply("Hi! Ik ben Super Duper Quacamole! Stuur /s of /start om te starten.", {
     reply_parameters: { message_id: ctx.msg.message_id },
   });
 });
 
-// bot.command("help", async (ctx) => {
-//   console.log('Received /help command');
-//   const lines = [
-//     'Hi! These are the commands (preceded by /) that I know:',
-//     ' • help - this message',
-//     ' • menu - show a menu with options',
-//     ' • rabo - current Rabobank certificate price'
-//   ];
-//   await ctx.reply(lines.join('\n'));
-// });
-
 // sendMenu will send a menu with options to the user when the /s or /start command is received
 const sendMenu = async (ctx: Context) => {
-  console.log('Received command');
+  console.log('Received show menu command');
   const inlineKeyboard = new InlineKeyboard()
     .text("Koers informatie", "info")
     .text("Abonneren", "subscribe");
@@ -102,33 +91,17 @@ subscriptions.forEach((subscription: any) => {
     console.log(`Received info-${subscription.key} callback`);
     const chatId = ctx.chat?.id;
     const webpageData = await webScraping.beleggerNl(subscription.id);
-    // Convert the result object to a formatted string, escape special characters, and send the message
-    const formattedResult = Object.entries(webpageData.keyValues).map(([key, value]) => `${key}: ${value}`).join('\n');
-    const escapedFormattedResult = escapeSpecialCharacters(formattedResult);
-    const message = `${escapedFormattedResult}\n\n[More Details](${webpageData.url})`;
-    await ctx.reply(message, { parse_mode: "MarkdownV2" });
+    if (webpageData.status == "success") {
+      // Convert the result object to a formatted string, escape special characters, and send the message
+      const formattedResult = Object.entries(webpageData.keyValues).map(([key, value]) => `${key}: ${value}`).join('\n');
+      const escapedFormattedResult = escapeSpecialCharacters(formattedResult);
+      const message = `__${subscription.name}__\n${escapedFormattedResult}\n\n[More Details](${webpageData.url})`;
+      await ctx.reply(message, { parse_mode: "MarkdownV2" });
+    } else {
+      await ctx.reply(webpageData.keyValues.errormsg);
+    }
   });
 })
-
-// // Function to fetch Rabobank certificate details and send the response
-// const handleRaboCommand: MiddlewareFn<Context> = async (ctx) => {
-//   console.log('Received /rabo command or callback query');
-//   await ctx.reply("Fetching Rabobank certificate details...");
-//   const webpageData = await webScraping.rabo();
-
-//   // Convert the result object to a formatted string, escape special characters, and send the message
-//   const formattedResult = Object.entries(webpageData.keyValues).map(([key, value]) => `${key}: ${value}`).join('\n');
-//   const escapedFormattedResult = escapeSpecialCharacters(formattedResult);
-//   const message = `${escapedFormattedResult}\n\n[More Details](${webpageData.url})`;
-//   await ctx.reply(message, { parse_mode: "MarkdownV2" });
-// };
-
-// // Command handler
-// bot.command("rabo", handleRaboCommand);
-
-// // Callback query handler
-// bot.callbackQuery('rabo', handleRaboCommand);
-// bot.callbackQuery('test', (ctx) => ctx.reply('You chose the test option'));
 
 // Characters to be escaped
 const escapeCharacters = ['_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'];
