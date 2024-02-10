@@ -4,7 +4,7 @@
         "key": "rabo",
         "name": "Rabobank certificaten",
         "lowTreshold": 95,
-        "highTreshold": 100
+        "highTreshold": 120
     },
     {
         "id": 60050880,
@@ -24,7 +24,7 @@
         "id": 60053928,
         "key": "nt-smallcap",
         "name": "Northern Trust Small Cap",
-        "lowTreshold": 14,
+        "lowTreshold": 15,
         "highTreshold": 11
     }
 ]

@@ -5,13 +5,13 @@ export interface WebpageData {
 }
 
 export interface Subscription {
-  id: string;
+  id: number;
   name: string;
-  lowTreshold: number,
-  highTreshold: number
+  lowThreshold: number,
+  highThreshold: number
 }
 
 export interface ChatData {
-  chatId: string;
+  chatId: number;
   subscriptions: Subscription[];
 }

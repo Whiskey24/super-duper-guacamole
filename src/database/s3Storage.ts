@@ -2,39 +2,7 @@ const AWS = require('aws-sdk');
 import { ChatData } from '../types'; // Import the ChatData type
 const s3 = new AWS.S3();
 
-// Function to fetch subscribed chat IDs from S3
-async function getSubscribedChatIds() {
-  try {
-    console.log(`Fetching subscribed chat IDs from S3 bucket ${process.env.S3_BUCKET}...`);
-    const s3Object = await s3.getObject({
-      Bucket: process.env.S3_BUCKET,
-      Key: 'subscribed-chat-ids.json',
-    }).promise();
-
-    return new Set(JSON.parse(s3Object.Body.toString()));
-  } catch (error) {
-    console.error('Error fetching subscribed chat IDs from S3:', error);
-    return new Set(); // Return an empty set if there's an error
-  }
-}
-export { getSubscribedChatIds };
-
-// Function to save subscribed chat IDs to S3
-async function saveSubscribedChatIds(subscribedChatIds: Set<number>): Promise<void> {
-  try {
-    await s3.putObject({
-      Bucket: process.env.S3_BUCKET,
-      Key: 'subscribed-chat-ids.json',
-      Body: JSON.stringify(Array.from(subscribedChatIds)),
-    }).promise();
-  } catch (error) {
-    console.error('Error saving subscribed chat IDs to S3:', error);
-    throw error; // Rethrow the error after logging
-  }
-}
-export { saveSubscribedChatIds };
-
-async function getChatData(chatId: string): Promise<ChatData> {
+async function getChatData(chatId: number): Promise<ChatData> {
   try {
     const s3Path = `${process.env.CHAT_DATA_FOLDER}/${chatId}.json`;
     console.log(`Fetching chat data from S3 bucket ${process.env.S3_BUCKET}, path: ${s3Path}...`);
@@ -70,3 +38,57 @@ async function saveChatData(chatData: ChatData) {
   }
 }
 export { saveChatData };
+
+// Get all json files that match the "chatID" type (in case other joson files exist) and return those in a list
+async function getAllChatData(): Promise<ChatData[]> {
+  try {
+    console.log(`Fetching all chat data from S3 bucket ${process.env.S3_BUCKET}, path: ${process.env.CHAT_DATA_FOLDER}...`);
+    
+    // List all objects in the specified folder
+    const response = await s3.listObjectsV2({
+      Bucket: process.env.S3_BUCKET,
+      Prefix: process.env.CHAT_DATA_FOLDER,
+    }).promise();
+
+    const chatDataList: ChatData[] = [];
+
+    // Iterate through each object
+    for (const object of response.Contents || []) {
+      const key = object.Key || '';
+      
+      // Check if the object is a JSON file
+      if (key.endsWith('.json')) {
+        // Fetch the object data
+        const s3Object = await s3.getObject({
+          Bucket: process.env.S3_BUCKET,
+          Key: key,
+        }).promise();
+
+        // Parse the data from binary to JSON
+        const jsonData = JSON.parse(s3Object.Body?.toString() || '');
+
+        // Check if the parsed JSON data matches the ChatData type
+        if (isChatData(jsonData)) {
+          // Add the chatData to the list
+          chatDataList.push(jsonData);
+        }
+      }
+    }
+
+    return chatDataList;
+  } catch (error) {
+    console.error('Error fetching all chat data from S3:', error);
+    return [];
+  }
+}
+
+// Function to check if an object matches the ChatData type
+function isChatData(obj: any): obj is ChatData {
+  return (
+    typeof obj === 'object' &&
+    typeof obj.chatId === 'string' &&
+    Array.isArray(obj.subscriptions)
+  );
+}
+
+export { getAllChatData };

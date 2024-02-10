@@ -2,7 +2,7 @@ import axios from 'axios';
 import cheerio from 'cheerio';
 import { WebpageData } from '../types/index';
 
-async function beleggerNl(id: string): Promise<WebpageData> {
+async function beleggerNl(id: number): Promise<WebpageData> {
   console.log(`Fetching beleggerNL webpage for id ${id}`);
   const url: string = `https://www.belegger.nl/obligatie-koers/${id}/default.aspx`;
   try {

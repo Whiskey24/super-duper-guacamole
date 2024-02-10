@@ -1,24 +1,30 @@
-/* TODO
-import { Bot } from '../bot';
-import { Database } from '../database';
+import { getAllChatData } from '../database/s3Storage';
+import { beleggerNl } from './webScraping';
+import { sendMessageToChat } from '../bot/bot'; 
 
-export class Notifications {
-  private bot: Bot;
-  private database: Database;
+export const checkSubscriptionsAndSendMessage = async function checkSubscriptionsAndSendMessage() {
+  try {
+      // Get all chat data
+      const chatDataList = await getAllChatData();
+      
+      // Iterate over each chat's subscriptions
+      for (const chatData of chatDataList) {
+          for (const subscription of chatData.subscriptions) {
+              // Fetch information from Belegger.nl for the subscription's ID
+              const webpageData = await beleggerNl(subscription.id);
+              
+              // Check if the "Koers" value meets the specified thresholds
+              const koersValue = parseFloat(webpageData.keyValues["Koers"]);
+              if (!isNaN(koersValue) && (koersValue > subscription.highThreshold || koersValue < subscription.lowThreshold)) {
+                  // Construct message to send
+                  const message = `De "Koers" voor ${subscription.name} is nu ${koersValue}\n\n[More Details](${webpageData.url}`;
 
-  constructor(bot: Bot, database: Database) {
-    this.bot = bot;
-    this.database = database;
+                  // Send message to the chat
+                  await sendMessageToChat(chatData.chatId, message);
+              }
+          }
+      }
+  } catch (error) {
+      console.error('Error checking subscriptions and sending messages:', error);
   }
-
-  public async sendNotifications(): Promise<void> {
-    // Fetch users from the database
-    const users = await this.database.getUsers();
-
-    // Loop through each user and send a notification
-    for (const user of users) {
-      await this.bot.sendMessage(user.id, 'This is your scheduled notification!');
-    }
-  }
-} 
-*/
+}

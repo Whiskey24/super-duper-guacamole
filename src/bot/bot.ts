@@ -71,7 +71,7 @@ subscriptions.forEach((subscription: any) => {
     
     // load chat data from S3, add subscription if not already present, and save again
     try {
-      const chatData = await s3.getChatData(String(ctx.chat?.id));
+      const chatData = await s3.getChatData(Number(ctx.chat?.id));
       if (!chatData.subscriptions.find(sub => sub.id === subscription.id)) {
         chatData.subscriptions.push(subscription);
         await s3.saveChatData(chatData);
@@ -115,29 +115,18 @@ function escapeSpecialCharacters(string: string): string {
   return newString;
 }
 
-// Function to send current date and time to all subscribed chat IDs
-async function sendNotificationToSubscribers(): Promise<void> {
+// Function to send a message to a chat ID in MarkdownV2 format
+async function sendMessageToChat(chatId: number, message: string) {
   try {
-    // Get the subscribed chat IDs
-    const subscribedChatIds = await s3.getSubscribedChatIds();
-
-    // Check if there are subscribed chat IDs
-    if (subscribedChatIds.size === 0) {
-      console.log('No subscribed chat IDs found. Skipping message sending.');
-      return;
-    }
-
-    const currentDateAndTime = new Date().toLocaleString();
-    const message = `Current date and time: ${currentDateAndTime}`;
-
-    // Iterate through subscribed chat IDs and send the message
-    for (const chatId of subscribedChatIds) {
-      await bot.api.sendMessage(String(chatId), message);
-    }
-
-    console.log(`Message sent successfully to ${subscribedChatIds.size} subscribers: `, message);
+      // Escape special characters in the message for MarkdownV2 formatting
+      //const escapedMessage = escapeSpecialCharacters(message);
+      
+      // Send the message to the provided chat ID
+      await bot.api.sendMessage(chatId, message, { parse_mode: "MarkdownV2" });
+      
+      console.log(`Message sent to chat ID ${chatId}: ${message}`);
   } catch (error) {
-    console.error('Error sending message to subscribers:', error);
+      console.error(`Error sending message to chat ID ${chatId}:`, error);
   }
 }
-export { sendNotificationToSubscribers}
+export { sendMessageToChat }

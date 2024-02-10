@@ -49,10 +49,10 @@ functions:
     handler: src/tasks/webScraping.rabo
     logRetentionInDays: 7
   sendNotificationToSubscribers:
-    handler: src/bot/bot.sendNotificationToSubscribers
+    handler: src/tasks/notifications.checkSubscriptionsAndSendMessage
     logRetentionInDays: 7
-    # events:
-    #   - schedule: rate(5 minutes)
+    events:
+      - schedule: cron(0 18 * * ? *)  # Runs every day at 6 PM UTC
 # TODO
 #  notifications:
 #    handler: src/tasks/notifications.handler
