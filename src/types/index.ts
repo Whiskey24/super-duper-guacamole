@@ -7,6 +7,8 @@ export interface WebpageData {
 export interface Subscription {
   id: string;
   name: string;
+  lowTreshold: number,
+  highTreshold: number
 }
 
 export interface ChatData {
