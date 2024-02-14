@@ -3,28 +3,28 @@
         "id": 600015811,
         "key": "rabo",
         "name": "Rabobank certificaten",
-        "lowTreshold": 95,
-        "highTreshold": 100
+        "lowThreshold": 95,
+        "highThreshold": 100
     },
     {
         "id": 60050880,
         "key": "nt-emerge",
         "name": "Northern Trust Emerging Markets",
-        "lowTreshold": 10,
-        "highTreshold": 18
+        "lowThreshold": 10,
+        "highThreshold": 18
     },
     {
         "id": 60050877,
         "key": "nt-world",
         "name": "Northern Trust World Fund",
-        "lowTreshold": 16,
-        "highTreshold": 23
+        "lowThreshold": 16,
+        "highThreshold": 23
     },
     {
         "id": 60053928,
         "key": "nt-smallcap",
         "name": "Northern Trust Small Cap",
-        "lowTreshold": 14,
-        "highTreshold": 11
+        "lowThreshold": 14,
+        "highThreshold": 11
     }
 ]
