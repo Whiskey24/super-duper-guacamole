@@ -6,6 +6,7 @@ export interface WebpageData {
 
 export interface Subscription {
   id: number;
+  key: string;
   name: string;
   lowThreshold: number,
   highThreshold: number
