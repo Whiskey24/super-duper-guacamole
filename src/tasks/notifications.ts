@@ -44,10 +44,11 @@ export const checkSubscriptionsAndSendMessage = async function checkSubscription
                     continue; // Skip if thresholds not found
                 }
 
-                const koersValue = parseFloat(webpageData.keyValues["Koers"]);
+                // replace the comma for a period or parseFloat will make it an integer
+                const koersValue = parseFloat(webpageData.keyValues["Koers"].replace(",", "."));
                 if (!isNaN(koersValue) && (koersValue > thresholds.highThreshold || koersValue < thresholds.lowThreshold)) {
                     // Construct message to send
-                    const message = `De "Koers" voor ${subscription.name} is nu ${koersValue}\n\n[More Details](${webpageData.url})`;
+                    const message = `De "Koers" voor ${subscription.name} is nu ${webpageData.keyValues["Koers"]}\n\n[More Details](${webpageData.url})`;
 
                     // Send message to the chat
                     await sendMessageToChat(chatData.chatId, message);
