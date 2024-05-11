@@ -52,7 +52,7 @@ functions:
     handler: src/tasks/notifications.checkSubscriptionsAndSendMessage
     logRetentionInDays: 7
     events:
-      - schedule: cron(40 17 * * ? *)  # Runs every day at 5:20 PM UTC
+      - schedule: cron(00 18 * * ? *)  # Runs every day at 18:00 PM UTC
 # TODO
 #  notifications:
 #    handler: src/tasks/notifications.handler

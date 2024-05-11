@@ -18,13 +18,13 @@
         "key": "nt-world",
         "name": "Northern Trust World Fund",
         "lowThreshold": 16,
-        "highThreshold": 23
+        "highThreshold": 24
     },
     {
         "id": 60053928,
         "key": "nt-smallcap",
         "name": "Northern Trust Small Cap",
-        "lowThreshold": 15,
-        "highThreshold": 11
+        "lowThreshold": 11,
+        "highThreshold": 15
     }
 ]

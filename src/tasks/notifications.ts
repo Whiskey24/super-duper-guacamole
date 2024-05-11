@@ -46,13 +46,31 @@ export const checkSubscriptionsAndSendMessage = async function checkSubscription
 
                 // replace the comma for a period or parseFloat will make it an integer
                 const koersValue = parseFloat(webpageData.keyValues["Koers"].replace(",", "."));
-                if (!isNaN(koersValue) && (koersValue > thresholds.highThreshold || koersValue < thresholds.lowThreshold)) {
+                // if (!isNaN(koersValue) && (koersValue > thresholds.highThreshold || koersValue < thresholds.lowThreshold)) {
+                //     // Construct message to send
+                //     const message = `De "Koers" voor ${subscription.name} is nu ${webpageData.keyValues["Koers"]}\n\n[More Details](${webpageData.url})`;
+
+                //     // Send message to the chat
+                //     await sendMessageToChat(chatData.chatId, message);
+                // }
+
+                if (!isNaN(koersValue) && (koersValue > thresholds.highThreshold)) {
                     // Construct message to send
-                    const message = `De "Koers" voor ${subscription.name} is nu ${webpageData.keyValues["Koers"]}\n\n[More Details](${webpageData.url})`;
+                    const message = `De "Koers" voor ${subscription.name} is nu met ${webpageData.keyValues["Koers"]} hoger dan de ingestelde drempelwaarde ${thresholds.highThreshold}\n\n[More Details](${webpageData.url})`;
 
                     // Send message to the chat
                     await sendMessageToChat(chatData.chatId, message);
                 }
+
+                if (!isNaN(koersValue) && (koersValue < thresholds.lowThreshold)) {
+                    // Construct message to send
+                    const message = `De "Koers" voor ${subscription.name} is nu met ${webpageData.keyValues["Koers"]} lager dan de ingestelde drempelwaarde ${thresholds.lowThreshold}\n\n[More Details](${webpageData.url})`;
+
+                    // Send message to the chat
+                    await sendMessageToChat(chatData.chatId, message);
+                }
+
+
             }
         }
     } catch (error) {
